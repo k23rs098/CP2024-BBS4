@@ -507,3 +507,20 @@ textarea.form-control {
 .logged-out {
     display: none;
 }
+
+.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+.dark-mode .form-control {
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #444;
+}
+.dark-mode .btn-primary,
+.dark-mode .btn-secondary {
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #555;
+}
+

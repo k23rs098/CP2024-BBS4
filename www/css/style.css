@@ -514,6 +514,7 @@ textarea.form-control {
 }
 .dark-mode .form-control {
     background-color: #222;
+    
     color: #fff;
     border: 1px solid #444;
 }

@@ -227,8 +227,8 @@ function renderPosts(posts) {
 function loadPosts() {
     const sortOrder = $('#sortOrder').val();
     $('#loadingSpinner').show();
-    // 読み込み中の表示メッセージ変更
-    $('#loadingSpinner p').text('投稿を読み込んでいます...');
+   
+   
 
 
     // 既存のリスナーを解除
@@ -489,9 +489,10 @@ $(function() {
     // ダークモード切り替え
     $('#darkButton').on('click', function () {
     $('body').toggleClass('dark-mode');
-    $(this).text($('body').hasClass('dark-mode') ? 'ライトモード' : 'ダークモード');
+    $(this).text($('body').hasClass('dark-mode') ? 'ライトモード' : 'ブラックモード');
     });
 
+    
 
     $('#loginButton').on('click', function() {
         const email = $('#loginEmail').val();
@@ -556,6 +557,7 @@ window.addEventListener('unload', function() {
         </div>
 
         <button id="darkButton" class="btn-secondary">ダークモード</button>
+
 
         <!-- 投稿フォーム（ログイン時表示） -->
         <div class="post-form logged-in">

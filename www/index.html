@@ -109,12 +109,12 @@ function createPost(author, content) {
     const button = $('#postButton');
     button.prop('disabled', true);
 
-    // author はログインしているユーザのメールアドレスに変更、userId を追加
     const postData = {
         author: currentUser.email,
         content: content,
         timestamp: firebase.database.ServerValue.TIMESTAMP,
-        userId: currentUser.uid
+        userId: currentUser.uid,
+        likes: 0 // 「いいね」の初期値を0に設定
     };
 
     postsRef.push(postData)
@@ -130,6 +130,7 @@ function createPost(author, content) {
             button.prop('disabled', false);
         });
 }
+
 
 // HTMLエスケープ処理
 function escapeHtml(str) {
@@ -203,9 +204,27 @@ function createPostElement(post) {
                         (編集済み: ${formatTimestamp(post.updatedAt)})
                     </span>
                 ` : ''}
+
+                <button class="like-button" onclick="likePost('${post.id}')">いいね <span id="likeCount-${post.id}">${post.likes || 0}</span></button>
             </div>
         </div>
     `;
+}
+
+// 「いいね」ボタンが押されたときの処理
+function likePost(postId) {
+    const postRef = postsRef.child(postId);
+    postRef.transaction((post) => {
+        if (post) {
+            // 「いいね」数を1増やす
+            post.likes = (post.likes || 0) + 1;
+        }
+        return post;
+    }).then(() => {
+        showMessage('「いいね」しました！');
+    }).catch((error) => {
+        showMessage('「いいね」に失敗しました: ' + error.message, 'error');
+    });
 }
 
 // 投稿の表示処理

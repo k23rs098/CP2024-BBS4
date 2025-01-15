@@ -525,3 +525,25 @@ textarea.form-control {
     border: 1px solid #555;
 }
 
+.like-button {
+    background-color: #ff4081;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.like-button:hover {
+    background-color: #ff1c66;
+}
+
+.like-button:focus {
+    outline: none;
+}
+
+.like-button span {
+    font-weight: bold;
+}
+

@@ -245,10 +245,8 @@ function renderPosts(posts) {
 // 投稿の読み込み
 function loadPosts() {
     const sortOrder = $('#sortOrder').val();
+    const query = $('#searchInput').val().toLowerCase();
     $('#loadingSpinner').show();
-   
-   
-
 
     // 既存のリスナーを解除
     if (postsListener) {
@@ -258,7 +256,7 @@ function loadPosts() {
 
     // リスナーを設定
     postsListener = postsRef.on('value', (snapshot) => {
-        const posts = [];
+        let posts = [];
         snapshot.forEach((childSnapshot) => {
             posts.push({
                 id: childSnapshot.key,
@@ -273,7 +271,10 @@ function loadPosts() {
             posts.sort((a, b) => a.timestamp - b.timestamp);
         }
 
-        renderPosts(posts);
+        // 検索キーワードでフィルタリング
+        const filteredPosts = filterPosts(posts, query);
+
+        renderPosts(filteredPosts);
         $('#loadingSpinner').hide();
     }, (error) => {
         console.error('Data fetch error:', error);
@@ -281,6 +282,7 @@ function loadPosts() {
         $('#loadingSpinner').hide();
     });
 }
+
 
 // モーダル関連の関数
 function showModal(modalId) {
@@ -477,6 +479,35 @@ function updateUI(user) {
 }
 
 $(function() {
+
+    // 検索バーの入力イベント
+$('#searchInput').on('input', function () {
+    const query = $(this).val(); // 入力された検索キーワード
+    const sortOrder = $('#sortOrder').val();
+
+    // データを取得してフィルタリング
+    postsRef.once('value', (snapshot) => {
+        let posts = [];
+        snapshot.forEach((childSnapshot) => {
+            posts.push({
+                id: childSnapshot.key,
+                ...childSnapshot.val()
+            });
+        });
+
+        // 並び順の適用
+        if (sortOrder === 'newest') {
+            posts.sort((a, b) => b.timestamp - a.timestamp);
+        } else {
+            posts.sort((a, b) => a.timestamp - b.timestamp);
+        }
+
+        // フィルタリングと表示
+        const filteredPosts = filterPosts(posts, query);
+        renderPosts(filteredPosts);
+    });
+});
+
     // Firebaseの初期化
     try {
         firebase.initializeApp(firebaseConfig);
@@ -534,6 +565,35 @@ $(function() {
     loadPosts();
 });
 
+// ソート順変更イベント
+$('#sortOrder').on('change', function () {
+    const query = $('#searchInput').val(); // 検索キーワード
+    const sortOrder = $(this).val();
+
+    // データを取得してフィルタリングと並び替え
+    postsRef.once('value', (snapshot) => {
+        let posts = [];
+        snapshot.forEach((childSnapshot) => {
+            posts.push({
+                id: childSnapshot.key,
+                ...childSnapshot.val()
+            });
+        });
+
+        // 並び順の適用
+        if (sortOrder === 'newest') {
+            posts.sort((a, b) => b.timestamp - a.timestamp);
+        } else {
+            posts.sort((a, b) => a.timestamp - b.timestamp);
+        }
+
+        // フィルタリングと表示
+        const filteredPosts = filterPosts(posts, query);
+        renderPosts(filteredPosts);
+    });
+});
+
+
 // クリーンアップ処理
 window.addEventListener('unload', function() {
     if (postsListener) {
@@ -541,6 +601,17 @@ window.addEventListener('unload', function() {
         postsListener = null;
     }
 });
+
+// 投稿一覧をフィルタリングして表示
+function filterPosts(posts, query) {
+    query = query.toLowerCase();
+    return posts.filter((post) => {
+        const contentMatch = post.content.toLowerCase().includes(query);
+        const authorMatch = post.author.toLowerCase().includes(query);
+        return contentMatch || authorMatch;
+    });
+}
+
     </script>
 </head>
 <body>
@@ -594,6 +665,9 @@ window.addEventListener('unload', function() {
         <!-- 投稿一覧 -->
         <div class="posts-container">
             <h2>投稿一覧</h2>
+            <div class="form-group">
+        <input type="text" id="searchInput" class="form-control" placeholder="キーワードで検索">
+    </div>
             <div class="posts-control">
                 <select id="sortOrder" class="form-control">
                     <option value="newest">新しい順</option>
